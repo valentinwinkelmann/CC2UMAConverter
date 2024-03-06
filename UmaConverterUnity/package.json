@@ -1,0 +1,24 @@
+{
+  "name": "com.vwgamedev.umaconverter",
+  "version": "0.1.0",
+  "displayName": "UMA Converter",
+  "description": "This Plugin provides a Asset Postprocessor to Convert UMA Races and Clothing exported by the Blender UMA Converter Plugin\nImportant: This Plugin is under Active Development, the Code is a Mess and it might break your Project. Use at your own Risk!",
+  "unity": "2022.3",
+  "unityRelease": "20f1",
+  "documentationUrl": "https://vwgame.dev/",
+  "changelogUrl": "https://vwgame.dev/",
+  "licensesUrl": "https://vwgame.dev/",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
+  "keywords": [
+    "Character Creator",
+    "Reallusion",
+    "UMA"
+  ],
+  "author": {
+    "name": "Valentin Winkelmann",
+    "email": "info@valentinwinkelmann.com",
+    "url": "https://vwgame.dev/"
+  }
+}
