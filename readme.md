@@ -8,14 +8,14 @@ The Plugin comes with an Unity Asset Postprocessor that will take the UMA Compat
 
 ## 🛠️Installation
 ### Blender Plugin
-1. Download the latest release from the [Releases](https://github.com/...) page.
+1. Download the latest release from the [Releases](https://github.com/valentinwinkelmann/CC2UMAConverter/releases) page.
 2. Open Blender and go to Edit > Preferences > Add-ons > Install
 3. Select the downloaded zip file and click Install Add-on
 4. Enable the Add-on by checking the box next to it
 5. Click File > Defaults > Save Startup File to make sure the Add-on is enabled by default
 
 ### Unity Plugin
-1. Simply open your Unity Package Manager and click on the + Button in the top left corner. Choose "Add package from git URL" and paste the following URL: ``https://github.com...``. That's it. The Plugin will be installed and ready to use.
+1. Simply open your Unity Package Manager and click on the + Button in the top left corner. Choose "Add package from git URL" and paste the following URL: ``https://github.com/valentinwinkelmann/CC2UMAConverter?path=/UmaConverterUnity``. That's it. The Plugin will be installed and ready to use.
 
 ## 🎛️Usage
 

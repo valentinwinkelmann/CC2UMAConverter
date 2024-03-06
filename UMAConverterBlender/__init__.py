@@ -2,9 +2,9 @@ bl_info = {
     "name": "UMA Converter",
     "blender": (2, 93, 0),
     "category": "Object",
-    "version": (1, 0, 0),
+    "version": (0, 1, 0),
     "author": "Valentin Winkelmann",
-    "description": "This Plugin helps to Convert Characters and Clothing from Reallusion Character Creator to Unity UMA"
+    "description": "will help you to convert a Character Creator 4 Character to a fully functional and ready to use UMA Asset. The Plugin will not only allow you to convert a naked Character as a new UMA Race, it will also allow you to convert clothed Characters to UMA Wardrobe Slots. The Plugin will take care of the necessary steps and keeps everything as simple as possible. The main goal is to let you focus on preparing your Character and Clothing in Character Creator 4 and build a easy to use Brdige to UMA. While you can of course modify the resulting UMA Assets directly in Unity, the Plugin is designed to let you handle everything in Blender."
 }
 
 import bpy
