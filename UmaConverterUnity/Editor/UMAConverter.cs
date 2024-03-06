@@ -7,7 +7,6 @@ using UnityEngine;
 using Newtonsoft.Json;
 using UMA;
 using UMA.Editors;
-using GameCreator.Runtime.Common;
 using System.Runtime.InteropServices.ComTypes;
 
 namespace UMAConverter

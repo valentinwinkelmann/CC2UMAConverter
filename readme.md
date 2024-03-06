@@ -15,7 +15,11 @@ The Plugin comes with an Unity Asset Postprocessor that will take the UMA Compat
 5. Click File > Defaults > Save Startup File to make sure the Add-on is enabled by default
 
 ### Unity Plugin
-1. Simply open your Unity Package Manager and click on the + Button in the top left corner. Choose "Add package from git URL" and paste the following URL: ``https://github.com/valentinwinkelmann/CC2UMAConverter?path=/UmaConverterUnity``. That's it. The Plugin will be installed and ready to use.
+Simply open your Unity Package Manager and click on the + Button in the top left corner. Choose "Add package from git URL" and paste the following URL:
+
+``https://github.com/valentinwinkelmann/CC2UMAConverter.git?path=UmaConverterUnity``
+
+That's it. The Plugin will be installed and ready to use.
 
 ## 🎛️Usage
 
