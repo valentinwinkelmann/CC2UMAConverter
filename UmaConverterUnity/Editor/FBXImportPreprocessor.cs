@@ -1,15 +1,13 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using UMAConverter;
 
-// AssetPostprocessor bietet eine Möglichkeit, auf verschiedene Importereignisse für Assets zuzugreifen.
+// AssetPostprocessor bietet eine MÃ¶glichkeit, auf verschiedene Importereignisse fÃ¼r Assets zuzugreifen.
 public class FBXImportPreprocessor : AssetPostprocessor
 {
     // Diese Methode wird aufgerufen, bevor ein Modell importiert wird.
     private void OnPreprocessModel()
     {
-        Debug.Log("Try to find modell" + assetPath);
         if (assetPath.ToLower().EndsWith(".fbx"))
         {
             string basePath = assetPath.Substring(0, assetPath.LastIndexOf('.'));
@@ -19,7 +17,7 @@ public class FBXImportPreprocessor : AssetPostprocessor
             // Initialisiere assetType als leeren String.
             string assetType = string.Empty;
 
-            // Überprüfe, ob die entsprechenden JSON-Dateien existieren.
+            // ÃœberprÃ¼fe, ob die entsprechenden JSON-Dateien existieren.
             if (File.Exists(raceJsonFilePath))
             {
                 assetType = "_race";
@@ -29,13 +27,12 @@ public class FBXImportPreprocessor : AssetPostprocessor
                 assetType = "_cloth";
             }
 
-            Debug.Log("Found type: " + assetType);
             if (!string.IsNullOrEmpty(assetType))
             {
                 string jsonFilePath = assetPath.Replace(".fbx", $"{assetType}.json");
                 Debug.Log(jsonFilePath);
 
-                // Überprüfe, ob die JSON-Datei existiert.
+                // ÃœberprÃ¼fe, ob die JSON-Datei existiert.
                 if (File.Exists(jsonFilePath))
                 {
                     // Gib eine Erfolgsmeldung in der Unity Debug-Konsole aus.
@@ -69,6 +66,9 @@ public class FBXImportPreprocessor : AssetPostprocessor
                 {
                     Debug.LogWarning($"Warning: No JSON file found for {Path.GetFileName(assetPath)} with type {assetType}");
                 }
+            } else
+            {
+                Debug.Log("This is a Normal Model" + assetPath + ". We wont convert that");
             }
         }
     }
