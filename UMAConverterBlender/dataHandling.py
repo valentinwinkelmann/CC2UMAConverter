@@ -23,6 +23,7 @@ class UMAData_Slot:
         self.name = name
         self.mesh = mesh
         self.overlay = overlay
+        self.wardrobeSlot = ""
 
 class UMAData_Overlay:
     def __init__(self, name, material, **kwargs):  # Fügen Sie **kwargs hinzu

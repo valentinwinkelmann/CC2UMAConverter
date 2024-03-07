@@ -219,16 +219,16 @@ class UMA_OT_Export(Operator, ExportHelper):
         default=True
     )
 
-    rendering_pipeline: EnumProperty(
-        name="Unity Rendering Pipeline",
-        description="Wählen Sie den Typ des Exports",
-        items=[
-            ('default', "Default", ""),
-            ('urp', "URP", ""),
-            ('hdrp', "HDRP", "")
-        ],
-        default='urp',
-    )
+    # rendering_pipeline: EnumProperty(
+    #     name="Unity Rendering Pipeline",
+    #     description="Wählen Sie den Typ des Exports",
+    #     items=[
+    #         ('default', "Default", ""),
+    #         ('urp', "URP", ""),
+    #         ('hdrp', "HDRP", "")
+    #     ],
+    #     default='urp',
+    # )
 
     # Definition eines StringProperty für zusätzliche Eingaben
     # custom_data: StringProperty(
@@ -240,8 +240,8 @@ class UMA_OT_Export(Operator, ExportHelper):
     def execute(self, context):
 
 
-        export_type = self.export_type
-        custom_data = self.custom_data
+        #export_type = self.export_type
+        #custom_data = self.custom_data
 
 
         # Deselect all
@@ -291,6 +291,7 @@ class UMA_OT_Export(Operator, ExportHelper):
                     print("Finding overlay for ", item.name)
                     print("Overlay: ", umaconverter.mesh_to_overlay(item.name))
                     slot = dataHandling.UMAData_Slot(item.slot_name, item.name, umaconverter.mesh_to_overlay(item.name))
+                    slot.wardrobeSlot = item.wardrobe_slot
                     clothData.slots.append(slot)
 
             filename = self.filepath.replace(".fbx", "")

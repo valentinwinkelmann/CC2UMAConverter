@@ -5,6 +5,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using UMA;
 using UMA.Editors;
+using Unity.VisualScripting;
 
 namespace UMAConverter
 {
@@ -25,7 +26,7 @@ namespace UMAConverter
 
         private bool addToGlobalLibrary = false; // If true, the created assets will be added to the global library.
 
-        private UMAMaterial defaultMaterial = AssetDatabase.LoadAssetAtPath<UMAMaterial>("Assets/CC2UMA/Editor/CCMaterial.asset");
+        private UMAMaterial defaultMaterial = AssetDatabase.LoadAssetAtPath<UMAMaterial>("Packages/com.vwgamedev.umaconverter/Runtime/UMAMaterials/CCMaterial.asset");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:UMAConverter"/> class.
@@ -115,7 +116,7 @@ namespace UMAConverter
             string slotName = slot.name; // The Name of the Slot
             bool nameByMaterial = false; // We are not using the material name as the asset name
             SkinnedMeshRenderer slotMesh = model.transform.Find(slot.mesh).GetComponent<SkinnedMeshRenderer>(); // The skinned mesh renderer for the slot
-            UMAMaterial material = AssetDatabase.LoadAssetAtPath<UMAMaterial>("Assets/CC2UMA/Editor/CCMaterial.asset"); // TODO: Implement a way to decide which UMAMaterial should be used as default
+            UMAMaterial material = defaultMaterial; // TODO: Implement a way to decide which UMAMaterial should be used as default
             SkinnedMeshRenderer seamsMesh = null; //TODO: Implement a way that our Blender Plugin exports a seams mesh and tag it in the json, if a slot has seams
             List<string> keepBoneNames = new List<string>(); // The bones which should be kept, we are not using this feature
             string rootBone = "Global"; // Its by default "Global" and there is currently no need to change it
@@ -170,7 +171,7 @@ namespace UMAConverter
             if (this.data.type == UMADataType.cloth)
             {
                 string recipePath = workingDirectory + "/Wardrobe/" + slot.name + "_Recipe";
-                CreateRecipe(recipePath, slotAsset, overlayAsset, addToGlobalLibrary);
+                CreateRecipe(recipePath, slotAsset, overlayAsset, addToGlobalLibrary, slot.wardrobeSlot);
             }
             if(slotAsset == null)
             {
@@ -244,10 +245,12 @@ namespace UMAConverter
 
 
 
-        private static void CreateRecipe(string path, SlotDataAsset slotData, OverlayDataAsset overlayData, bool addToGlobalLibrary)
+        private void CreateRecipe(string path, SlotDataAsset slotData, OverlayDataAsset overlayData, bool addToGlobalLibrary, string wardrobeSlot)
         {
             path = path + ".asset";
-            UMAEditorUtilities.CreateRecipe(path, slotData, overlayData, slotData.name, addToGlobalLibrary);
+            UMA.CharacterSystem.UMAWardrobeRecipe wardrobeRecipe = UMAEditorUtilities.CreateRecipe(path, slotData, overlayData, slotData.name, addToGlobalLibrary);
+            wardrobeRecipe.wardrobeSlot = wardrobeSlot;
+            wardrobeRecipe.compatibleRaces = (this.data as UMAData_Cloth).compatibleRaces;
             Debug.Log("Recipe created for: " + slotData.name);
         }
 
@@ -413,6 +416,7 @@ namespace UMAConverter
         public string name;
         public string mesh;
         public string overlay;
+        public string wardrobeSlot = "";
 
 
         /// <summary>
