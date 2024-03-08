@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using UMA;
 using UMA.Editors;
 using Unity.VisualScripting;
+using System.Linq;
 
 namespace UMAConverter
 {
@@ -24,7 +25,7 @@ namespace UMAConverter
 
         GameObject model = null; // The imported model, we are taking our meshes from.
 
-        private bool addToGlobalLibrary = false; // If true, the created assets will be added to the global library.
+        private bool addToGlobalLibrary = true; // If true, the created assets will be added to the global library.
 
         private UMAMaterial defaultMaterial = AssetDatabase.LoadAssetAtPath<UMAMaterial>("Packages/com.vwgamedev.umaconverter/Runtime/UMAMaterials/CCMaterial.asset");
 
@@ -251,6 +252,7 @@ namespace UMAConverter
             UMA.CharacterSystem.UMAWardrobeRecipe wardrobeRecipe = UMAEditorUtilities.CreateRecipe(path, slotData, overlayData, slotData.name, addToGlobalLibrary);
             wardrobeRecipe.wardrobeSlot = wardrobeSlot;
             wardrobeRecipe.compatibleRaces = (this.data as UMAData_Cloth).compatibleRaces;
+            Debug.Log("have tried to set Compatible Races for: " + slotData.name + " to " + (this.data as UMAData_Cloth).compatibleRaces.First());
             Debug.Log("Recipe created for: " + slotData.name);
         }
 
@@ -274,6 +276,11 @@ namespace UMAConverter
             string raceDataPath = workingDirectory + "/Race/" + (this.data as UMAData_Race).name + "_RaceData.asset";
 
             AssetDatabase.CreateAsset(raceData, raceDataPath);
+
+            if (addToGlobalLibrary)
+            {
+                UMAAssetIndexer.Instance.EvilAddAsset(typeof(RaceData), raceData);
+            }
 
             // ----------------- Race Text Recipe -----------------
 
@@ -307,6 +314,7 @@ namespace UMAConverter
                 // Add it to the global libary
                 UMAAssetIndexer.Instance.EvilAddAsset(typeof(UMA.CharacterSystem.UMAWardrobeRecipe), asset);
                 EditorUtility.SetDirty(UMAAssetIndexer.Instance);
+
             }
 
 

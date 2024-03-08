@@ -143,6 +143,11 @@ class UMA_OT_Convert(Operator):
     def execute(self, context):
 
         init_blender_viewport()
+        rig_status = umaconverter.check_rig()
+
+        if rig_status["is_BaseBoneRoot"]:
+            # We need to rename the CC_Base_BoneRoot bone to root first
+            umaconverter.rename_bone("CC_Base_BoneRoot", "root")
 
         umaconverter.apply_transforms_rest_pose()
         if(context.scene.rig_type == 'race'):
@@ -169,7 +174,7 @@ class UMA_OT_Convert(Operator):
             print("Difference:", difference)
             print("We can adjust height now")
 
-            umaconverter.adjust_cc_base_hip_height(difference)
+            umaconverter.adjust_cc_base_hip_height(-difference)
 
 
         umaconverter.add_uma_bones()
@@ -185,8 +190,8 @@ class UMA_OT_Import(Operator, ImportHelper):
     def execute(self, context):
         import_options = {
             'use_anim': False,
-            'ignore_leaf_bones': True,
-            'automatic_bone_orientation': True,
+            'ignore_leaf_bones': True, 
+            'automatic_bone_orientation': False,# We have to be very sure about how the Bone Strucutre is imported best...
         }
         bpy.ops.import_scene.fbx(filepath=self.filepath, **import_options)
         # Update mesh items list after import
@@ -219,16 +224,16 @@ class UMA_OT_Export(Operator, ExportHelper):
         default=True
     )
 
-    # rendering_pipeline: EnumProperty(
-    #     name="Unity Rendering Pipeline",
-    #     description="Wählen Sie den Typ des Exports",
-    #     items=[
-    #         ('default', "Default", ""),
-    #         ('urp', "URP", ""),
-    #         ('hdrp', "HDRP", "")
-    #     ],
-    #     default='urp',
-    # )
+    rendering_pipeline: EnumProperty(
+        name="Unity Rendering Pipeline",
+        description="Wählen Sie den Typ des Exports",
+        items=[
+            ('default', "Default", ""),
+            ('urp', "URP", ""),
+            ('hdrp', "HDRP", "")
+        ],
+        default='urp',
+    )
 
     # Definition eines StringProperty für zusätzliche Eingaben
     # custom_data: StringProperty(
@@ -245,6 +250,7 @@ class UMA_OT_Export(Operator, ExportHelper):
 
 
         # Deselect all
+
         bpy.ops.object.select_all(action='DESELECT')
         
         # Select meshes based on checkboxes
@@ -261,7 +267,7 @@ class UMA_OT_Export(Operator, ExportHelper):
                 context.view_layer.objects.active = obj  # Set armature as active for export
         
         # Export selected objects as FBX
-        bpy.ops.export_scene.fbx(filepath=self.filepath, use_selection=True, global_scale=0.01, object_types={'MESH', 'ARMATURE'})
+        bpy.ops.export_scene.fbx(filepath=self.filepath, use_selection=True, global_scale=0.01, object_types={'MESH', 'ARMATURE'}, add_leaf_bones=False)
 
 
         if(context.scene.rig_type == "race"): # Export _race.json
@@ -327,6 +333,7 @@ def save_textures_with_export(filepath, selected_objects, custom_folder_name="Ex
                     for node in slot.material.node_tree.nodes:
                         if node.type == 'TEX_IMAGE' and node.image:
                             original_texture_path = bpy.path.abspath(node.image.filepath)
+                            print(original_texture_path)
                             if os.path.isfile(original_texture_path):
                                 # Extrahiert das Suffix aus dem Originaltexturnamen
                                 texture_suffix = os.path.basename(original_texture_path).split("_")[-1]

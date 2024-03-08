@@ -73,6 +73,26 @@ public class FBXImportPreprocessor : AssetPostprocessor
         }
     }
 
+    /// <summary>
+    /// This method fixes the normal textures of the imported model automatically.
+    /// This is done by checking recrusively at the assetPath for textures and fix every *_normal. texture
+    /// </summary>
+    private static void FixNormalTextures(string assetPath)
+    {
+        string[] textureGUIDs = AssetDatabase.FindAssets("t:Texture", new string[] { assetPath.Replace(".fbx", "") });
+        foreach (string textureGUID in textureGUIDs)
+        {
+            string texturePath = AssetDatabase.GUIDToAssetPath(textureGUID);
+            if (texturePath.ToLower().Contains("_normal") || texturePath.ToLower().Contains("_norm") || texturePath.ToLower().Contains("_bump"))
+            {
+                TextureImporter textureImporter = AssetImporter.GetAtPath(texturePath) as TextureImporter;
+                textureImporter.textureType = TextureImporterType.NormalMap;
+                textureImporter.SaveAndReimport();
+            }
+        }
+    }
+
+
     // Diese Methode wird aufgerufen, nachdem ein Modell importiert wurde.
     private void OnPostprocessModel(GameObject g)
     {
@@ -90,6 +110,8 @@ public class FBXImportPreprocessor : AssetPostprocessor
     /// <param name="type"></param>
     public static void Convert(string path, convertType type)
     {
+        FixNormalTextures(path);
+
         switch (type)
         {
             case convertType.race:

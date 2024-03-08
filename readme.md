@@ -1,4 +1,4 @@
-# 🩻Character Creator 4 To UMA
+# 🩻Character Creator 4 To UMA [ Experimental ]
 ## 📖Description
 This set of Two Plugins for Blender and Unity will help you to convert a Character Creator 4 Character to a fully functional and ready to use UMA Asset. The Plugin will not only allow you to convert a naked Character as a new UMA Race, it will also allow you to convert clothed Characters to UMA Wardrobe Slots. The Plugin will take care of the necessary steps and keeps everything as simple as possible. The main goal is to let you focus on preparing your Character and Clothing in Character Creator 4 and build a easy to use Brdige to UMA. While you can of course modify the resulting UMA Assets directly in Unity, the Plugin is designed to let you handle everything in Blender.
 
@@ -28,7 +28,8 @@ Exporting your Character from Character Creator 4 is pretty simple, but needs to
 1. ```File > Export > Clothed Character```
 2. Set Target Tool Preset to ```Maya```. (*Not Unity*)
 3. Set FBX Options to ```Mesh```.
-4. Set Default Pose to ```T-Pose```. (*if you don't use InstaLOD, yes you can*)
+4. Disable Embed Textures.
+5. Enable InstaLOD Material Merge ( the type you want )
 
 ### 🩻Create a new UMA Race
 To convert a naked CC4 Character to a new UMA Race, you will import the character in blender and Choose Rig Type: Race. When you press converting the Plugin will calculate some information about the rig in Background.
@@ -44,11 +45,30 @@ To convert a clothed CC4 Character to a new UMA Wardrobe Slot, you will import t
 Now you can press the convert button and the Plugin will do the rest. Like the UMA Race workflow you can now choose which meshes should be exported ( Race Meshes will be ignored and while they are in the Scene you dont have to worry about them ). As with the Race Creation you will have to fill the Slot Names and can rename the Material Names to your liking. You also have to Choose your desired Wardrobe Slot Type. The Plugin will give you a predefined list of Wardrobe Slots which UMA uses by Default but you can freely type any Wardrobe Slot Type you want, just make sure this is consistent with your other Clothing conversions.
 Aft. You will find a JSON file next to the FBX file that contains some information about your clothing. This is the *_Cloth.json file.
 
-### ⚠️Important Notes
+### ⚠️Important Notes and Limitations
 - If you Export clothing for a Race you created before, you have to use exactly the same Character for the Clothing Exports. If you plan to export a set of multiple clothings over time, you should save your Race Template Character in Character Creator 4.
 - The Plugin Exports JSON Files, which are simple but better keep them if you plan to create new clothings for your character in the future.
 - The Plugin is not meant to let you modifiy and adjust the Mesh in Blender. You can do that, but it may break the scene and make the Plugin not work as expected with your modified meshes.
 - The Plugin works currently only with PBR Materials. before Exporting your Character from Character Creator 4, it's therefore necessary to set the Material Type to PBR. At the moment there are no plans to extend the Plugin to handle other Material Types.
+- Currently the Plugin only works with Character Exports which used InstaLOD Material Merge.
+- Currently you can't export a Character with Hats or other non skinned Accessories. CC4 adds them with a Nasty Extra Bone and the Plugin won't handle that. If you Want to Export a Hat, you have to skin it like a normal Clothing Piece and bind it to the Head Bone.
+
+## 🔮Planed and Upcomming Features
+- [X] Race Conversion
+- [X] Wardrobe Slot Conversion
+- [X] Define Wardrobe Slot Types in Blender
+- [X] Renaming Slots and Material Names in Blender
+- [X] Export Textures and rename them as their Overlay Names
+- [X] Unity Postprocessor to Create all UMA Assets for you
+- [ ] Make Renaming the Materials automatically in Blender
+- [ ] Thumbnail Export for UMA Wardrobe Slots
+- [ ] Individual Wardrobe Slot types for each Race
+- [ ] Stability and Performance Improvements
+- [ ] Support all Render Pipelines
+- [ ] Support non PBR Workflows like CC4's Skin, Eye and Hair Materials
+- [ ] Support Mesh exports without InstaLOD Material Merge
+- [ ] Support for Accessories and Hats without Skinning
+
 
 ## 📜License
-This Blender Plugin and Unity Plugin are licensed under the MIT License and are developed by [Valentin Winkelmann](https://vwgame.dev/).This project is not affiliated with Reallusion, Unity or the UMA Project.
+This Blender Plugin and Unity Plugin are Developed and Copyrighted by [Valentin Winkelmann](https://vwgame.dev/). This Software is Free to use in a Non-Commercial and Commercial Enviroment. Please read the full [End-User License Agreement](https://github.com/valentinwinkelmann/CC2UMAConverter/blob/main/license.md)
