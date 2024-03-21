@@ -5,8 +5,8 @@ using UnityEngine;
 using Newtonsoft.Json;
 using UMA;
 using UMA.Editors;
-using Unity.VisualScripting;
-using System.Linq;
+using UMA.CharacterSystem;
+using UMAConverter;
 
 namespace UMAConverter
 {
@@ -18,6 +18,7 @@ namespace UMAConverter
     public class UMAConverter<T> where T : IUMAData
     {
         string meshPath; // The path to the mesh file, like a .fbx
+        string jsonPath; // The path to the UMAData_<T>.json file
         T data;
         string workingDirectory = null; // The directory in which we create our folder structure, is null as long no folder structure was created. Add / and the desired subfolder to get the full path.
 
@@ -26,8 +27,6 @@ namespace UMAConverter
         GameObject model = null; // The imported model, we are taking our meshes from.
 
         private bool addToGlobalLibrary = true; // If true, the created assets will be added to the global library.
-
-        private UMAMaterial defaultMaterial = AssetDatabase.LoadAssetAtPath<UMAMaterial>("Packages/com.vwgamedev.umaconverter/Runtime/UMAMaterials/CCMaterial.asset");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:UMAConverter"/> class.
@@ -41,7 +40,7 @@ namespace UMAConverter
             if (!System.IO.File.Exists(MeshPath)) throw new System.Exception("Mesh file not found at " + MeshPath);
             this.meshPath = MeshPath;
             string jsonPathSuffix = typeof(T).Name.ToLower().Split('_')[1];
-            string jsonPath = MeshPath.Replace(".fbx", "_" + jsonPathSuffix + ".json");
+            jsonPath = MeshPath.Replace(".fbx", "_" + jsonPathSuffix + ".json");
             this.data = JsonConvert.DeserializeObject<T>(System.IO.File.ReadAllText(jsonPath));
             if (this.data == null) throw new System.Exception("UMAData not found for " + jsonPath);
 
@@ -66,20 +65,24 @@ namespace UMAConverter
         /// </summary>
         private void CreateFolderStructure()
         {
-            Debug.Log("Creating folder structure for " + meshPath);
-            // Create the folder structure for the UMA assets
             string folderPath = Path.GetDirectoryName(meshPath) + "/" + Path.GetFileNameWithoutExtension(meshPath);
             if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-            Debug.Log("Creating folder structure at " + folderPath);
+
             string[] subFolders = new string[] { "Overlays", "Slots", "Textures" };
             foreach (string subFolder in subFolders)
             {
                 if (!Directory.Exists(folderPath + "/" + subFolder)) Directory.CreateDirectory(folderPath + "/" + subFolder);
-                Debug.Log("Creating subfolder " + subFolder);
+
             }
             if (this.data.type == UMADataType.cloth)
             {
                 if (!Directory.Exists(folderPath + "/Wardrobe")) Directory.CreateDirectory(folderPath + "/Wardrobe");
+#if UMAConverterGCInventory
+                if (UMAConverterSettings.Instance.CreateItems)
+                {
+                    if (!Directory.Exists(folderPath + "/Items")) Directory.CreateDirectory(folderPath + "/Items");
+                }
+#endif
             }
             else
             {
@@ -92,7 +95,6 @@ namespace UMAConverter
             {
                 // Each slot has a Folder in the Slots directory
                 string slotPath = workingDirectory + "/Slots/" + slot.name;
-                Debug.Log("Try to create slot folder at " + slotPath);
                 if (!Directory.Exists(slotPath)) Directory.CreateDirectory(slotPath);
             }
 
@@ -117,7 +119,7 @@ namespace UMAConverter
             string slotName = slot.name; // The Name of the Slot
             bool nameByMaterial = false; // We are not using the material name as the asset name
             SkinnedMeshRenderer slotMesh = model.transform.Find(slot.mesh).GetComponent<SkinnedMeshRenderer>(); // The skinned mesh renderer for the slot
-            UMAMaterial material = defaultMaterial; // TODO: Implement a way to decide which UMAMaterial should be used as default
+            UMAMaterial material = UMAConverterSettings.Instance.defaultMaterial; // TODO: Implement a way to decide which UMAMaterial should be used as default
             SkinnedMeshRenderer seamsMesh = null; //TODO: Implement a way that our Blender Plugin exports a seams mesh and tag it in the json, if a slot has seams
             List<string> keepBoneNames = new List<string>(); // The bones which should be kept, we are not using this feature
             string rootBone = "Global"; // Its by default "Global" and there is currently no need to change it
@@ -172,9 +174,15 @@ namespace UMAConverter
             if (this.data.type == UMADataType.cloth)
             {
                 string recipePath = workingDirectory + "/Wardrobe/" + slot.name + "_Recipe";
-                CreateRecipe(recipePath, slotAsset, overlayAsset, addToGlobalLibrary, slot.wardrobeSlot);
+                UMAWardrobeRecipe recipe = CreateRecipe(recipePath, slotAsset, overlayAsset, addToGlobalLibrary, slot.wardrobeSlot);
+                #if UMAConverterGCInventory
+                if (UMAConverterSettings.Instance.CreateItems)
+                {
+                    UMAConverter.integrations.GameCreatorInventory.CreateItem(recipe, workingDirectory + "/Items/", slot.name);
+                }
+                #endif
             }
-            if(slotAsset == null)
+            if (slotAsset == null)
             {
                 Debug.LogWarning("That should not happen.");
             }
@@ -183,7 +191,6 @@ namespace UMAConverter
                 Debug.LogWarning("That should not happen.");
             }
 
-            Debug.Log("We add Slot and overlay asset to our memory");
             raceSlots.Add(new UMAData_RaceSlots(slotAsset, overlayAsset));
 
 
@@ -203,14 +210,9 @@ namespace UMAConverter
             }
             asset.material = slotAsset.material;
             Texture[] textures = GetOverlayTextureList(overlayName, slotAsset.material);
-            foreach (Texture texture in textures)
-            {
-                Debug.Log("We found a dumb fat texture: " + texture.name);
-            }
-            asset.textureList = GetOverlayTextureList(overlayName, defaultMaterial);
+            asset.textureList = GetOverlayTextureList(overlayName, UMAConverterSettings.Instance.defaultMaterial);
 
 
-            Debug.Log("Creating overlay for: " + slotName + " at " + overlayPath);
             AssetDatabase.CreateAsset(asset, overlayPath +".asset");
             AssetDatabase.SaveAssets();
             return asset;
@@ -232,7 +234,6 @@ namespace UMAConverter
             foreach (UMAMaterial.MaterialChannel channel in umaMaterial.channels)
             {
                 string textureName = overlayName + "_" + channel.materialPropertyName.Replace("_", "");
-                Debug.Log("Trying to find texture: " + textureName);
                 string[] textureGUIDs = AssetDatabase.FindAssets(textureName);
                 if (textureGUIDs.Length > 0)
                 {
@@ -246,14 +247,13 @@ namespace UMAConverter
 
 
 
-        private void CreateRecipe(string path, SlotDataAsset slotData, OverlayDataAsset overlayData, bool addToGlobalLibrary, string wardrobeSlot)
+        private UMAWardrobeRecipe CreateRecipe(string path, SlotDataAsset slotData, OverlayDataAsset overlayData, bool addToGlobalLibrary, string wardrobeSlot)
         {
-            path = path + ".asset";
-            UMA.CharacterSystem.UMAWardrobeRecipe wardrobeRecipe = UMAEditorUtilities.CreateRecipe(path, slotData, overlayData, slotData.name, addToGlobalLibrary);
+            UMA.CharacterSystem.UMAWardrobeRecipe wardrobeRecipe = UMAEditorUtilities.CreateRecipe(path + ".asset", slotData, overlayData, slotData.name, addToGlobalLibrary);
             wardrobeRecipe.wardrobeSlot = wardrobeSlot;
             wardrobeRecipe.compatibleRaces = (this.data as UMAData_Cloth).compatibleRaces;
-            Debug.Log("have tried to set Compatible Races for: " + slotData.name + " to " + (this.data as UMAData_Cloth).compatibleRaces.First());
-            Debug.Log("Recipe created for: " + slotData.name);
+
+            return wardrobeRecipe;
         }
 
 
@@ -293,7 +293,6 @@ namespace UMAConverter
             int index = 0;
             foreach(UMAData_RaceSlots raceSlot in raceSlots)
             {
-                Debug.Log("We found a Slot: " + raceSlot.slot.name + " with an Overlay: " + raceSlot.overlay.overlayName + ". Lets add them!");
                 SlotData slotData = new SlotData(raceSlot.slot);
                 OverlayData overlayData = new OverlayData(raceSlot.overlay);
                 slotData.AddOverlay(overlayData);
@@ -313,19 +312,26 @@ namespace UMAConverter
             {
                 // Add it to the global libary
                 UMAAssetIndexer.Instance.EvilAddAsset(typeof(UMA.CharacterSystem.UMAWardrobeRecipe), asset);
+                UMAAssetIndexer.Instance.EvilAddAsset(typeof(UMATextRecipe), asset);
+
                 EditorUtility.SetDirty(UMAAssetIndexer.Instance);
 
             }
 
 
-            // Was Trying to combine booth at the end without success
-            //recipe.SetRace(raceData);
             raceData.baseRaceRecipe = asset;
             EditorUtility.SetDirty(asset);
             AssetDatabase.SaveAssetIfDirty(asset);
 
             EditorUtility.SetDirty(raceData);
             AssetDatabase.SaveAssetIfDirty(raceData);
+            AssetDatabase.SaveAssets();
+
+#if UMAConverterGCInventory
+            integrations.GameCreatorInventory.CreateEquipmentAsset(null, workingDirectory + "/Race/"+(this.data as UMAData_Race).name+"_"); // TODO: Add the ability to customize the Wardrobe Slots, needs update of the Blender Exporter
+#endif
+
+
 
             AssetDatabase.Refresh();
             return true;
@@ -357,28 +363,32 @@ namespace UMAConverter
 
         }
 
+        /// <summary>
+        /// Called by the AssetPreprocessor to convert the FBX and UMAData to UMA Assets
+        /// </summary>
+        /// <exception cref="System.Exception"></exception>
         public void convert()
         {
             if (data == null) throw new System.Exception("UMAData not found for " + meshPath);
             CreateFolderStructure();
             foreach (UMAData_Slot slot in data.slots)
             {
-                Debug.Log("Generating Slot: " + slot.name);
+
                 GenerateSlotAsset(slot);
             }
             if(data.type == UMADataType.race)
             {
-                Debug.Log("We have a Race, so we generate all needed assets for it.");
                 GenerateRaceAssets();
             }
-            
+            AssetDatabase.SaveAssets();
+            if(UMAConverterSettings.Instance.removeMeshAfterCreating)
+            {
+                AssetDatabase.DeleteAsset(meshPath);
+                AssetDatabase.DeleteAsset(jsonPath);
+                AssetDatabase.Refresh();
+            }
+
         }
-
-
-
-
-
-
     }
 
 

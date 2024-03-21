@@ -1,6 +1,6 @@
 {
   "name": "com.vwgamedev.umaconverter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "UMA Converter",
   "description": "This Plugin provides a Asset Postprocessor to Convert UMA Races and Clothing exported by the Blender UMA Converter Plugin\nImportant: This Plugin is under Active Development, the Code is a Mess and it might break your Project. Use at your own Risk!",
   "unity": "2022.3",

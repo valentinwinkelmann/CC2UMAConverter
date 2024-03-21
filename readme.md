@@ -60,6 +60,8 @@ Aft. You will find a JSON file next to the FBX file that contains some informati
 - [X] Renaming Slots and Material Names in Blender
 - [X] Export Textures and rename them as their Overlay Names
 - [X] Unity Postprocessor to Create all UMA Assets for you
+- [x] GameCreator 2 Integration
+- [ ] Rework the Codebase to be more flexible and extendable
 - [ ] Make Renaming the Materials automatically in Blender
 - [ ] Thumbnail Export for UMA Wardrobe Slots
 - [ ] Individual Wardrobe Slot types for each Race
