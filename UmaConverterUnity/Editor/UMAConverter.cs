@@ -127,9 +127,23 @@ namespace UMAConverter
             bool calcTangents = true; // We are calculating tangents by default
             string stripBones = ""; // We are not stripping bones
 
-
-
-            SlotDataAsset slotAsset = UMASlotProcessingUtil.CreateSlotData(slotFolder,assetFolder,assetName,slotName,nameByMaterial,slotMesh,material,seamsMesh,keepBoneNames,rootBone,binarySerialization,calcTangents,stripBones);
+            
+            SlotBuilderParameters slotBuilderParameters = new SlotBuilderParameters();
+            slotBuilderParameters.slotFolder = slotFolder;
+            slotBuilderParameters.assetFolder = assetFolder;
+            slotBuilderParameters.assetName = assetName;
+            slotBuilderParameters.slotName = slotName;
+            slotBuilderParameters.nameByMaterial = nameByMaterial;
+            slotBuilderParameters.slotMesh = slotMesh;
+            slotBuilderParameters.material = material;
+            slotBuilderParameters.seamsMesh = seamsMesh;
+            slotBuilderParameters.keepList = keepBoneNames;
+            slotBuilderParameters.rootBone = rootBone;
+            slotBuilderParameters.binarySerialization = binarySerialization;
+            slotBuilderParameters.calculateTangents = calcTangents;
+            slotBuilderParameters.stripBones = stripBones;
+            //public static SlotDataAsset CreateSlotData(string slotFolder, string assetFolder, string assetName, string slotName, bool nameByMaterial, SkinnedMeshRenderer slotMesh, UMAMaterial material, SkinnedMeshRenderer seamsMesh, List<string> KeepList, string rootBone, bool binarySerialization = false, bool calcTangents = true, string stripBones = "", bool useRootFolder = false, bool adustForUDIM)
+            SlotDataAsset slotAsset = UMASlotProcessingUtil.CreateSlotData(slotBuilderParameters);
 
             slotAsset.tags = new string[0]; // Currently we are not using tags
             UMAUpdateProcessor.UpdateSlot(slotAsset);
