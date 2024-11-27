@@ -5,6 +5,10 @@ This set of Two Plugins for Blender and Unity will help you to convert a Charact
 ## 🎮Unity Plugin
 The Plugin comes with an Unity Asset Postprocessor that will take the UMA Compatible outputs from Blender and automatically create a race or wardrobe slots for you. This Plugin will do a lot of steps in the Background but won't bother you with any of it.
 
+## 📺See it in Action
+https://imgur.com/a/tKXUXQj
+
+
 
 ## 🛠️Installation
 ### Blender Plugin
